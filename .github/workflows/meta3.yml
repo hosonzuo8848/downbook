@@ -1,0 +1,23 @@
+name: meta3
+on:
+  workflow_dispatch:
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        lib: [bnf_dunhuang, codh, princeton, nijl, nagoya, bodleian, loc, toyo, taiwan, cambridge, berlin_un, vietnam]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q aiohttp
+      - run: python scripts/meta_fetch.py --lib ${{ matrix.lib }} --conc 40
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meta-${{ matrix.lib }}
+          path: out/
+          retention-days: 7
